@@ -6,7 +6,7 @@ with rec {
 with import repo {};
 
 with rec {
-  myglibc = pkgs.glibc.overrideDerivation (attrs: rec {
+  myglibc2_19 = pkgs.glibc.overrideDerivation (attrs: rec {
     version = "2.19";
     name = "glibc-${version}";
 
@@ -46,6 +46,47 @@ with rec {
       sha256 = "18m2dssd6ja5arxmdxinc90xvpqcsnqjfwmjl2as07j0i3srff9d";
     };
   });
+
+  myglibc2_23 = pkgs.glibc.overrideDerivation (attrs: rec {
+    version = "2.23";
+    name = "glibc-${version}";
+
+    patches = [
+      /* Have rpcgen(1) look for cpp(1) in $PATH.  */
+      ./glibc2_23/rpcgen-path.patch
+
+      /* Allow NixOS and Nix to handle the locale-archive. */
+      ./glibc2_23/nix-locale-archive.patch
+
+      /* Don't use /etc/ld.so.cache, for non-NixOS systems.  */
+      ./glibc2_23/dont-use-system-ld-so-cache.patch
+
+      /* Don't use /etc/ld.so.preload, but /etc/ld-nix.so.preload.  */
+      ./glibc2_23/dont-use-system-ld-so-preload.patch
+
+      /* Add blowfish password hashing support.  This is needed for
+         compatibility with old NixOS installations (since NixOS used
+         to default to blowfish). */
+      ./glibc2_23/glibc-crypt-blowfish.patch
+
+      /* The command "getconf CS_PATH" returns the default search path
+         "/bin:/usr/bin", which is inappropriate on NixOS machines. This
+         patch extends the search path by "/run/current-system/sw/bin". */
+      ./glibc2_23/fix_path_attribute_in_getconf.patch
+
+      ./glibc2_23/cve-2016-3075.patch
+      ./glibc2_23/glob-simplify-interface.patch
+      ./glibc2_23/cve-2016-1234.patch
+      ./glibc2_23/cve-2016-3706.patch
+    ];
+
+    src = pkgs.fetchurl {
+      url = "mirror://gnu/glibc/glibc-${version}.tar.xz";
+      sha256 = "1s8krs3y2n6pzav7ic59dz41alqalphv7vww4138ag30wh0fpvwl";
+    };
+  });
+
+  myglibc = if builtins.currentSystem == "armv7l-linux" then myglibc2_23 else myglibc2_19;
 };
 
 import pkgs.path {
