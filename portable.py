@@ -3,15 +3,21 @@ import subprocess, argparse, os, sys
 parser = argparse.ArgumentParser()
 parser.add_argument('--out', default='.')
 parser.add_argument('--rpath', default='$ORIGIN')
+parser.add_argument('--arch')
 parser.add_argument('--with-libc', action='store_true') # this option is buggy
 parser.add_argument('exe', nargs='+')
 args = parser.parse_args()
 
-linker = '/lib64/ld-linux-x86-64.so.2'
+if not args.arch:
+    args.arch = os.uname()[4]
 
+linker = {
+    'x86_64': '/lib64/ld-linux-x86-64.so.2',
+    'armv7l': '/lib/ld-linux-armhf.so.3',
+}[args.arch]
 full_path = {}
 
-system_libs = ['ld-linux-x86-64.so.2']
+system_libs = [linker.split('/')[-1]]
 if not args.with_libc:
     system_libs += ['libc.so.6', 'libm.so.6', 'libutil.so.1', 'libdl.so.2', 'libpthread.so.0', 'libresolv.so.2', 'librt.so.1']
 
