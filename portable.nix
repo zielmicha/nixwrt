@@ -1,6 +1,6 @@
 with rec {
   _nixpkgs = import <nixpkgs> { };
-  repo = _nixpkgs.fetchFromGitHub { owner = "NixOS"; repo = "nixpkgs"; rev = "849b5a5193be4c3e61af53e8db5bdb9d95b2074f"; sha256 = "1i1fhllx7k115zzjj0vf3qrmkp52icq2hb33qg5jig52vqk8ij6g"; };
+  repo = _nixpkgs.fetchFromGitHub { owner = "NixOS"; repo = "nixpkgs"; rev = "36005e5edf5ac8b59df69b42fccb45779358d4a3"; sha256 = "01cnilf3p55brbh9mg1g8hd5721l21aldic9v5sxmn9jcr21k3sf"; }; # 18.03
 };
 
 with import repo {};
@@ -86,7 +86,7 @@ with rec {
     };
   });
 
-  myglibc = if builtins.currentSystem == "armv7l-linux" then myglibc2_23 else myglibc2_19;
+  myglibc = myglibc2_23; #if builtins.currentSystem == "armv7l-linux" then myglibc2_23 else myglibc2_19;
 };
 
 import pkgs.path {
