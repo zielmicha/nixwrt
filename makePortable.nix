@@ -3,6 +3,7 @@
 rec {
   make = {libDir, package, mainExe}: stdenv.mkDerivation {
     name = package.name;
+    version = package.version;
     buildInputs = [patchelf python2];
     phases = ["buildPhase" "fixupPhase"];
     buildPhase = ''
