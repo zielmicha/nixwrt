@@ -99,6 +99,8 @@ import pkgs.path {
 
     gnutls = super.gnutls.overrideDerivation (attrs: {doCheck = false;});
 
+    repo = repo;
+
     # 1. coreutils tests are flaky, disable them
     # 2. only do this if these are not bootstrap coreutils
     coreutils = if builtins.hasAttr "overrideDerivation" super.coreutils then
